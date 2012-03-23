@@ -385,19 +385,20 @@ function fuf#launch(modeName, initialPattern, partialMatching)
     autocmd InsertLeave  <buffer> nested call s:runningHandler.onInsertLeave()
   augroup END
   for [key, func] in [
-        \   [ g:fuf_keyOpen          , 'onCr(' . s:OPEN_TYPE_CURRENT . ')' ],
-        \   [ g:fuf_keyOpenSplit     , 'onCr(' . s:OPEN_TYPE_SPLIT   . ')' ],
-        \   [ g:fuf_keyOpenVsplit    , 'onCr(' . s:OPEN_TYPE_VSPLIT  . ')' ],
-        \   [ g:fuf_keyOpenTabpage   , 'onCr(' . s:OPEN_TYPE_TAB     . ')' ],
-        \   [ '<BS>'                 , 'onBs()'                            ],
-        \   [ '<C-h>'                , 'onBs()'                            ],
-        \   [ '<C-w>'                , 'onDeleteWord()'                    ],
-        \   [ g:fuf_keyPreview       , 'onPreviewBase(1)'                  ],
-        \   [ g:fuf_keyNextMode      , 'onSwitchMode(+1)'                  ],
-        \   [ g:fuf_keyPrevMode      , 'onSwitchMode(-1)'                  ],
-        \   [ g:fuf_keySwitchMatching, 'onSwitchMatching()'                ],
-        \   [ g:fuf_keyPrevPattern   , 'onRecallPattern(+1)'               ],
-        \   [ g:fuf_keyNextPattern   , 'onRecallPattern(-1)'               ],
+        \   [ g:fuf_keyComplete      , 'onCr(' . s:OPEN_TYPE_COMPLETE . ')' ],
+        \   [ g:fuf_keyOpen          , 'onCr(' . s:OPEN_TYPE_CURRENT  . ')' ],
+        \   [ g:fuf_keyOpenSplit     , 'onCr(' . s:OPEN_TYPE_SPLIT    . ')' ],
+        \   [ g:fuf_keyOpenVsplit    , 'onCr(' . s:OPEN_TYPE_VSPLIT   . ')' ],
+        \   [ g:fuf_keyOpenTabpage   , 'onCr(' . s:OPEN_TYPE_TAB      . ')' ],
+        \   [ '<BS>'                 , 'onBs()'                             ],
+        \   [ '<C-h>'                , 'onBs()'                             ],
+        \   [ '<C-w>'                , 'onDeleteWord()'                     ],
+        \   [ g:fuf_keyPreview       , 'onPreviewBase(1)'                   ],
+        \   [ g:fuf_keyNextMode      , 'onSwitchMode(+1)'                   ],
+        \   [ g:fuf_keyPrevMode      , 'onSwitchMode(-1)'                   ],
+        \   [ g:fuf_keySwitchMatching, 'onSwitchMatching()'                 ],
+        \   [ g:fuf_keyPrevPattern   , 'onRecallPattern(+1)'                ],
+        \   [ g:fuf_keyNextPattern   , 'onRecallPattern(-1)'                ],
         \ ]
     call fuf#defineKeyMappingInHandler(key, func)
   endfor
@@ -494,10 +495,11 @@ endfunction
 
 let s:TEMP_VARIABLES_GROUP = expand('<sfile>:p')
 let s:ABBR_SNIP_MASK = '...'
-let s:OPEN_TYPE_CURRENT = 1
-let s:OPEN_TYPE_SPLIT   = 2
-let s:OPEN_TYPE_VSPLIT  = 3
-let s:OPEN_TYPE_TAB     = 4
+let s:OPEN_TYPE_COMPLETE = 0
+let s:OPEN_TYPE_CURRENT  = 1
+let s:OPEN_TYPE_SPLIT    = 2
+let s:OPEN_TYPE_VSPLIT   = 3
+let s:OPEN_TYPE_TAB      = 4
 
 " a:pattern: 'str' -> '\V\.\*s\.\*t\.\*r\.\*'
 function s:makeFuzzyMatchingExpr(target, pattern)
@@ -901,6 +903,9 @@ function s:handlerBase.onCr(openType)
     echo ''
     return
   endif
+  if a:openType == s:OPEN_TYPE_COMPLETE
+    return
+  end
   let s:reservedCommand = [self.removePrompt(getline('.')), a:openType]
   call feedkeys("\<Esc>", 'n') " stopinsert behavior is strange...
 endfunction
